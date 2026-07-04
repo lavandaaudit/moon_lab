@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ibonarium — Місячна Лабораторія</title>
+  <meta name="description" content="Ibonarium Moon Lab — Реальна телеметрія Місяця в реальному часі. NASA SVS Dial-A-Moon." />
+  <meta property="og:title" content="Ibonarium Moon Lab — Телеметрія Місяця" />
+  <meta property="og:description" content="Реальні дані Місяця: фаза, освітленість, відстань, температура, позиція." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    @keyframes twinkle {
+      0% { opacity: 0.1; }
+      100% { opacity: 0.8; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseSlow {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    body {
+      background: #000;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Starfield */
+    .starfield { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+    .star { position: absolute; border-radius: 50%; background: #fff; }
+
+    /* Layout */
+    .page { position: relative; z-index: 10; min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Header */
+    .header {
+      width: 100%; padding: 2rem 1.5rem 1rem;
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem;
+      animation: fadeIn 1.2s ease-out;
+    }
+    .header .mission { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(150,170,220,0.6); }
+    .header h1 { font-size: clamp(2rem, 6vw, 3.75rem); font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #fff; line-height: 1.1; }
+    .header .subtitle { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(150,170,220,0.5); }
+    .header .clock { font-size: 13px; font-family: 'Courier New', monospace; letter-spacing: 0.1em; color: rgba(150,170,220,0.7); margin-top: 0.25rem; }
+    .header .live { display: flex; align-items: center; gap: 6px; }
+    .header .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: pulseSlow 2s ease-in-out infinite; }
+    .header .live-text { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(150,170,220,0.4); }
+
+    /* Content */
+    .content { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0 1rem 2rem; }
+
+    /* Moon image */
+    .moon-wrap { display: flex; justify-content: center; margin: 1rem 0 1.5rem; animation: fadeIn 1.8s ease-out; }
+    .moon-wrap img, .moon-wrap svg { border-radius: 50%; filter: drop-shadow(0 0 40px rgba(180,180,200,0.06)); }
+
+    /* Phase label */
+    .phase-label { text-align: center; margin-bottom: 2rem; animation: fadeIn 2.2s ease-out; }
+    .phase-label .name { font-size: clamp(1rem, 2.5vw, 1.25rem); letter-spacing: 0.3em; text-transform: uppercase; font-weight: 300; color: #fff; }
+    .phase-label .illum { font-size: 12px; font-family: 'Courier New', monospace; margin-top: 4px; letter-spacing: 0.1em; color: rgba(150,170,220,0.5); }
+    .progress-bar { margin: 0.75rem auto 0; width: 200px; height: 1px; background: rgba(150,170,220,0.1); position: relative; }
+    .progress-bar .fill { position: absolute; top: 0; left: 0; height: 100%; background: linear-gradient(to right, rgba(150,170,220,0.05), rgba(150,170,220,0.5)); transition: width 1s ease; }
+    .progress-labels { display: flex; justify-content: space-between; margin: 4px auto 0; width: 200px; }
+    .progress-labels span { font-size: 7px; letter-spacing: 0.1em; color: rgba(150,170,220,0.2); }
+
+    /* Data grid */
+    .data-grid {
+      width: 100%; max-width: 48rem;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem 2rem;
+      animation: fadeIn 2.6s ease-out;
+    }
+    @media (min-width: 640px) { .data-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1024px) { .data-grid { grid-template-columns: repeat(4, 1fr); } }
+    .data-item { display: flex; flex-direction: column; gap: 2px; }
+    .data-item .label { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 500; color: rgba(150,170,220,0.35); }
+    .data-item .value { font-size: 14px; font-family: 'Courier New', monospace; letter-spacing: 0.05em; color: rgba(220,225,235,0.85); }
+
+    /* Calendar */
+    .calendar { width: 100%; max-width: 56rem; margin-top: 3rem; animation: fadeIn 3s ease-out; }
+    .calendar-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .calendar-header span { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(150,170,220,0.3); }
+    .calendar-header .line { flex: 1; height: 1px; background: rgba(150,170,220,0.06); }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    @media (min-width: 640px) { .calendar-grid { grid-template-columns: repeat(10, 1fr); } }
+    @media (min-width: 768px) { .calendar-grid { grid-template-columns: repeat(14, 1fr); } }
+    @media (min-width: 1024px) { .calendar-grid { grid-template-columns: repeat(15, 1fr); } }
+    .cal-day { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px; border-radius: 6px; }
+    .cal-day.today { background: rgba(150,170,220,0.06); }
+    .cal-day .day-num { font-size: 8px; font-family: 'Courier New', monospace; }
+    .cal-day .day-num.is-today { color: rgba(150,170,220,0.8); font-weight: 600; }
+    .cal-day .day-num:not(.is-today) { color: rgba(150,170,220,0.2); }
+    .cal-day .day-pct { font-size: 7px; font-family: 'Courier New', monospace; color: rgba(150,170,220,0.15); }
+
+    /* Footer */
+    .footer {
+      margin-top: auto; padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer span { font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; }
+    .footer .left { color: rgba(150,170,220,0.15); }
+    .footer .right { color: rgba(150,170,220,0.12); }
+
+    /* Loading */
+    .loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; }
+    .spinner { width: 48px; height: 48px; border-radius: 50%; border: 2px solid rgba(150,170,220,0.2); border-top-color: rgba(150,170,220,0.6); animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(150,170,220,0.6); font-family: 'Courier New', monospace; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading -->
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p class="loading-text">Синхронізація даних Місяця...</p>
+  </div>
+
+  <!-- Page -->
+  <div id="app" class="page" style="display:none;">
+    <div id="starfield" class="starfield"></div>
+
+    <!-- Header -->
+    <div class="header">
+      <span class="mission">Місія: Lunar-X1-Sync</span>
+      <h1>Ibonarium</h1>
+      <span class="subtitle">Місячна Лабораторія — Телеметрія в Реальному Часі</span>
+      <span id="clock" class="clock"></span>
+      <div class="live">
+        <span class="live-dot"></span>
+        <span class="live-text">Наживо</span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Moon -->
+      <div class="moon-wrap" id="moonWrap"></div>
+
+      <!-- Phase label -->
+      <div class="phase-label">
+        <p class="name" id="phaseName"></p>
+        <p class="illum" id="illumLabel"></p>
+        <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+        <div class="progress-labels"><span>НМ</span><span>ПЧ</span><span>ПМ</span><span>ОЧ</span></div>
+      </div>
+
+      <!-- Data grid -->
+      <div class="data-grid" id="dataGrid"></div>
+
+      <!-- Calendar -->
+      <div class="calendar">
+        <div class="calendar-header">
+          <span>Щомісячний Огляд</span>
+          <div class="line"></div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span class="left">Ibonarium Moon Lab © 2025</span>
+      <span class="right">Джерела: Алгоритм Міуса + NASA SVS Dial-A-Moon</span>
+    </div>
+  </div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// ASTRONOMICAL CALCULATIONS — Jean Meeus, "Astronomical Algorithms"
+// ═══════════════════════════════════════════════════════════
+const SYN = 29.53058867;
+const KNOWN_NM = new Date('2000-01-06T18:14:00Z').getTime();
+
+function moonAge(now) {
+  return ((now.getTime() - KNOWN_NM) / 86400000) % SYN;
+}
+
+function phaseFromAge(age) { return age / SYN; }
+
+function illum(phase) { return (1 - Math.cos(phase * 2 * Math.PI)) / 2; }
+
+function phaseName(age) {
+  if (age < 1.85) return 'Новий Місяць';
+  if (age < 5.55) return 'Зростаючий Серп';
+  if (age < 9.25) return 'Перша Чверть';
+  if (age < 12.95) return 'Зростаючий Gibbous';
+  if (age < 16.65) return 'Повний Місяць';
+  if (age < 20.35) return 'Спадний Gibbous';
+  if (age < 24.05) return 'Остання Чверть';
+  if (age < 27.75) return 'Спадний Серп';
+  return 'Новий Місяць';
+}
+
+function moonDist(now) {
+  const T = (now.getTime() - new Date('2000-01-01T12:00:00Z').getTime()) / 86400000;
+  const M = (13.1763966 + 0.9856473 * T) % 360;
+  return Math.round(384400 * (1 - 0.0549 * 0.0549) / (1 + 0.0549 * Math.cos(M * Math.PI / 180)));
+}
+
+function moonPos(now) {
+  const T = (now.getTime() - new Date('2000-01-01T12:00:00Z').getTime()) / 86400000;
+  const L0 = (218.3165 + 13.176396 * T) % 360;
+  const M = (134.9634 + 13.064993 * T) % 360;
+  const F = (93.2721 + 13.229350 * T) % 360;
+  const lon = L0 + 6.289 * Math.sin(M * Math.PI / 180);
+  const lat = 5.128 * Math.sin(F * Math.PI / 180);
+  const lr = lon * Math.PI / 180, la = lat * Math.PI / 180, ob = 23.4393 * Math.PI / 180;
+  const ra = Math.atan2(Math.sin(lr) * Math.cos(ob) - Math.tan(la) * Math.sin(ob), Math.cos(lr));
+  const dec = Math.asin(Math.sin(la) * Math.cos(ob) + Math.cos(la) * Math.sin(ob) * Math.sin(lr));
+  let rh = ((ra * 180 / Math.PI) / 15 + 24) % 24;
+  const rH = Math.floor(rh), rM = Math.floor((rh - rH) * 60), rS = Math.floor(((rh - rH) * 60 - rM) * 60);
+  const dd = dec * 180 / Math.PI, dD = Math.floor(Math.abs(dd)), dM = Math.floor((Math.abs(dd) - dD) * 60);
+  return { ra: `${rH}h ${rM}m ${rS}s`, dec: `${dd >= 0 ? '+' : '-'}${dD}° ${dM}'` };
+}
+
+function libration(now) {
+  const T = (now.getTime() - new Date('2000-01-01T12:00:00Z').getTime()) / 86400000;
+  return {
+    lon: Math.round((-1.25 + 6.49 * Math.sin((134.9634 + 13.064993 * T) * Math.PI / 180)) * 10) / 10,
+    lat: Math.round((4.88 - 4.37 * Math.sin((93.2721 + 13.229350 * T) * Math.PI / 180)) * 10) / 10
+  };
+}
+
+function surfTemp(ip) {
+  return { day: Math.round(120 + ip * 0.9), night: Math.round(-180 + ip * 0.57) };
+}
+
+function nextEvents(now, age) {
+  const addD = d => { const dt = new Date(now); dt.setDate(dt.getDate() + Math.floor(d)); return dt.toISOString().split('T')[0]; };
+  return {
+    fm: addD((SYN / 2 - age + SYN) % SYN),
+    nm: addD(SYN - age),
+    fq: addD((SYN / 4 - age + SYN) % SYN),
+    lq: addD((3 * SYN / 4 - age + SYN) % SYN)
+  };
+}
+
+function monthlyCalendar(now) {
+  const y = now.getFullYear(), m = now.getMonth(), days = new Date(y, m + 1, 0).getDate();
+  const cal = [];
+  for (let d = 1; d <= days; d++) {
+    const dt = new Date(y, m, d, 12, 0, 0);
+    const a = moonAge(dt), p = phaseFromAge(a);
+    cal.push({ date: `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, age: a, phase: p, illum: illum(p) });
+  }
+  return cal;
+}
+
+// ═══════════════════════════════════════════════════════════
+// SVG MOON (fallback)
+// ═══════════════════════════════════════════════════════════
+function moonSVG(phase, illumination) {
+  const wax = phase <= 0.5, pa = phase * 2 * Math.PI, t = Math.cos(pa);
+  const sz = 300, r = sz / 2, ex = Math.abs(t) * r;
+  let lp;
+  if (wax) { lp = illumination < 0.5
+    ? `M ${r} 0 A ${ex} ${r} 0 0 1 ${r} ${sz} A ${r} ${r} 0 0 0 ${r} 0`
+    : `M ${r} 0 A ${r} ${r} 0 0 1 ${r} ${sz} A ${ex} ${r} 0 0 1 ${r} 0`;
+  } else { lp = illumination < 0.5
+    ? `M ${r} 0 A ${ex} ${r} 0 0 0 ${r} ${sz} A ${r} ${r} 0 0 1 ${r} 0`
+    : `M ${r} 0 A ${r} ${r} 0 0 0 ${r} ${sz} A ${ex} ${r} 0 0 0 ${r} 0`;
+  }
+  const craters = [
+    [30,25,8,0.15],[55,35,12,0.12],[40,55,6,0.18],[65,50,10,0.1],[25,60,7,0.14],
+    [50,70,9,0.13],[70,25,5,0.16],[35,42,4,0.2],[60,65,11,0.11],[45,30,3,0.17],
+    [55,58,5,0.15],[28,45,6,0.12],[42,78,8,0.1],[72,42,7,0.13],[33,15,4,0.09],[58,18,6,0.11]
+  ];
+  const mare = [[0.35,0.45,0.12,0.08,0.2],[0.55,0.38,0.18,0.1,0.15],[0.45,0.62,0.15,0.09,0.18],[0.62,0.55,0.1,0.07,0.12],[0.38,0.32,0.08,0.06,0.14]];
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}">
+    <defs>
+      <filter id="mt"><feTurbulence type="fractalNoise" baseFrequency="0.03 0.04" numOctaves="5" seed="42" result="n"/>
+      <feColorMatrix type="saturate" values="0" in="n" result="gn"/><feBlend in="SourceGraphic" in2="gn" mode="multiply"/></filter>
+      <radialGradient id="mg" cx="38%" cy="38%" r="55%"><stop offset="0%" stopColor="#e8e4d4"/><stop offset="20%" stopColor="#d4d0c0"/>
+      <stop offset="45%" stopColor="#b8b4a4"/><stop offset="70%" stopColor="#9a9686"/><stop offset="90%" stopColor="#7a7670"/><stop offset="100%" stopColor="#5a5650"/></radialGradient>
+      <radialGradient id="dg" cx="55%" cy="55%" r="50%"><stop offset="0%" stopColor="#1a1a2e"/><stop offset="100%" stopColor="#08080f"/></radialGradient>
+      <clipPath id="mc"><circle cx="${r}" cy="${r}" r="${r}"/></clipPath>
+    </defs>
+    <circle cx="${r}" cy="${r}" r="${r}" fill="url(#dg)"/>
+    <g clip-path="url(#mc)" filter="url(#mt)">
+      <path d="${lp}" fill="url(#mg)"/>
+      ${mare.map(m => `<ellipse cx="${m[0]*sz}" cy="${m[1]*sz}" rx="${m[2]*sz}" ry="${m[3]*sz}" fill="rgba(50,48,40,${m[4]})"/>`).join('')}
+      ${craters.map(c => `<circle cx="${c[0]/100*sz}" cy="${c[1]/100*sz}" r="${c[2]/100*sz}" fill="rgba(70,65,55,${c[3]})"/>`).join('')}
+    </g>
+    <circle cx="${r}" cy="${r}" r="${r}" fill="none" stroke="rgba(140,140,160,0.08)" stroke-width="1.5"/>
+  </svg>`;
+}
+
+// Mini moon for calendar
+function miniMoonSVG(phase, illumination) {
+  const wax = phase <= 0.5, t = Math.cos(phase * 2 * Math.PI), sz = 20, r = 10, ex = Math.abs(t) * r;
+  let lp;
+  if (wax) { lp = illumination < 0.5 ? `M 10 0 A ${ex} 10 0 0 1 10 20 A 10 10 0 0 0 10 0` : `M 10 0 A 10 10 0 0 1 10 20 A ${ex} 10 0 0 1 10 0`; }
+  else { lp = illumination < 0.5 ? `M 10 0 A ${ex} 10 0 0 0 10 20 A 10 10 0 0 1 10 0` : `M 10 0 A 10 10 0 0 0 10 20 A ${ex} 10 0 0 0 10 0`; }
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"/><clipPath id="c${phase.toFixed(4).replace('.','')}"><circle cx="10" cy="10" r="9.5"/></clipPath><g clip-path="url(#c${phase.toFixed(4).replace('.','')})"><path d="${lp}" fill="rgba(200,200,210,0.7)"/></g></svg>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// STARFIELD
+// ═══════════════════════════════════════════════════════════
+function createStars() {
+  const sf = document.getElementById('starfield');
+  for (let i = 0; i < 200; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 1.5 + 0.3;
+    Object.assign(s.style, {
+      left: Math.random() * 100 + '%', top: Math.random() * 100 + '%',
+      width: size + 'px', height: size + 'px',
+      opacity: Math.random() * 0.7 + 0.1,
+      animation: `twinkle ${3 + Math.random() * 5}s ease-in-out infinite alternate`,
+      animationDelay: Math.random() * 5 + 's'
+    });
+    sf.appendChild(s);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getUTCHours()).padStart(2, '0');
+  const m = String(now.getUTCMinutes()).padStart(2, '0');
+  const s = String(now.getUTCSeconds()).padStart(2, '0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s} UTC`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════════
+async function init() {
+  const now = new Date();
+  const age = moonAge(now), phase = phaseFromAge(age), il = illum(phase);
+  const dist = moonDist(now), pos = moonPos(now), lib = libration(now);
+  const ev = nextEvents(now, age), cal = monthlyCalendar(now);
+  const temp = surfTemp(il * 100);
+  const prog = (age / SYN) * 100;
+  const vel = Math.round(2 * Math.PI * dist / (SYN * 86400) * 100) / 100;
+  const ang = Math.round(2 * 1737.4 / dist * 180 / Math.PI * 60 * 100) / 100;
+
+  // Fetch NASA image
+  let nasaUrl = '';
+  try {
+    const h = String(now.getUTCHours()).padStart(2, '0');
+    const ts = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-${String(now.getUTCDate()).padStart(2,'0')}T${h}:00`;
+    const res = await fetch(`https://svs.gsfc.nasa.gov/api/dialamoon/${ts}`);
+    const data = await res.json();
+    nasaUrl = data.image?.url || '';
+  } catch {}
+
+  // Fetch moonrise/moonset
+  let mr = null, ms = null;
+  try {
+    const res = await fetch('https://api.sunrise-sunset.org/json?lat=50.45&lng=30.52&formatted=0&date=today');
+    const data = await res.json();
+    if (data.status === 'OK') {
+      mr = data.results.moonrise; ms = data.results.moonset;
+    }
+  } catch {}
+
+  const fmtTime = iso => {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Kiev' }); }
+    catch { return '—'; }
+  };
+  const fmtDate = ds => {
+    try { return new Date(ds + 'T00:00:00').toLocaleDateString('uk-UA', { month: 'short', day: 'numeric' }); }
+    catch { return ds; }
+  };
+
+  // Moon image
+  const wrap = document.getElementById('moonWrap');
+  if (nasaUrl) {
+    wrap.innerHTML = `<img src="${nasaUrl}" alt="NASA Moon" width="300" height="300" style="object-fit:cover;border-radius:50%;" />`;
+  } else {
+    wrap.innerHTML = moonSVG(phase, il);
+  }
+
+  // Phase label
+  document.getElementById('phaseName').textContent = phaseName(age);
+  document.getElementById('illumLabel').textContent = `Освітленість ${Math.round(il * 10000) / 100}%`;
+  document.getElementById('progressFill').style.width = `${prog.toFixed(1)}%`;
+
+  // Data rows
+  const rows = [
+    ['ФАЗА', phaseName(age)],
+    ['ВІК', `${Math.floor(age)}д ${Math.floor((age - Math.floor(age)) * 24)}г ${Math.floor(((age - Math.floor(age)) * 24 - Math.floor((age - Math.floor(age)) * 24)) * 60)}хв`],
+    ['ОСВІТЛЕНІСТЬ', `${Math.round(il * 10000) / 100}%`],
+    ['ВІДСТАНЬ', `${dist.toLocaleString()} км`],
+    ['ШВИДКІСТЬ', `${vel} км/с`],
+    ['КУТОВИЙ РОЗМІР', `${ang}'`],
+    ['ПРЯМЕ СХИДЖЕННЯ', pos.ra],
+    ['СХИЛЕННЯ', pos.dec],
+    ['ЛІБРАЦІЯ', `${lib.lon}° / ${lib.lat}°`],
+    ['ТЕМП. ДЕННОЇ', `${temp.day}°C`],
+    ['ТЕМП. НІЧНОЇ', `${temp.night}°C`],
+    ['МІСЯЦЕСХІД', fmtTime(mr)],
+    ['МІСЯЦЕЗАХІД', fmtTime(ms)],
+    ['НАСТУПНИЙ ПОВНИЙ', fmtDate(ev.fm)],
+    ['НАСТУПНИЙ НОВИЙ', fmtDate(ev.nm)],
+    ['СИНОД. ПЕРІОД', `${SYN.toFixed(2)} дн`],
+    ['ЦИКЛ', `${prog.toFixed(1)}%`]
+  ];
+  document.getElementById('dataGrid').innerHTML = rows.map(r =>
+    `<div class="data-item"><span class="label">${r[0]}</span><span class="value">${r[1]}</span></div>`
+  ).join('');
+
+  // Calendar
+  const today = now.getDate();
+  document.getElementById('calendarGrid').innerHTML = cal.map(d => {
+    const dn = parseInt(d.date.split('-')[2]);
+    const isT = dn === today;
+    return `<div class="cal-day${isT ? ' today' : ''}">
+      <span class="day-num${isT ? ' is-today' : ''}">${dn}</span>
+      ${miniMoonSVG(d.phase, d.illum)}
+      <span class="day-pct">${d.illum > 0 ? Math.round(d.illum * 100) : '0'}</span>
+    </div>`;
+  }).join('');
+
+  // Show page
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  createStars();
+  updateClock();
+  setInterval(updateClock, 1000);
+  setInterval(init, 60000);
+}
+
+init();
+</script>
+</body>
+</html>

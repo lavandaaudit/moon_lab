@@ -59,8 +59,18 @@
     .content { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0 1rem 2rem; }
 
     /* Moon image */
-    .moon-wrap { display: flex; justify-content: center; margin: 1rem 0 1.5rem; animation: fadeIn 1.8s ease-out; }
-    .moon-wrap img, .moon-wrap svg { border-radius: 50%; filter: drop-shadow(0 0 40px rgba(180,180,200,0.06)); }
+    .moon-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 1rem 0 1.5rem; animation: fadeIn 1.8s ease-out; }
+    .moon-img-container { display: flex; justify-content: center; align-items: center; }
+    .moon-img-container img, .moon-img-container svg { border-radius: 50%; filter: drop-shadow(0 0 40px rgba(180,180,200,0.06)); transition: width 0.4s ease, height 0.4s ease; }
+    .moon-zoom { display: flex; align-items: center; gap: 12px; }
+    .moon-zoom button {
+      background: rgba(150,170,220,0.06); border: 1px solid rgba(150,170,220,0.1); color: rgba(150,170,220,0.5);
+      font-size: 16px; font-family: 'Courier New', monospace; width: 32px; height: 32px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;
+      line-height: 1; padding: 0;
+    }
+    .moon-zoom button:hover { background: rgba(150,170,220,0.12); border-color: rgba(150,170,220,0.25); color: rgba(150,170,220,0.8); }
+    .moon-zoom .zoom-level { font-size: 9px; font-family: 'Courier New', monospace; letter-spacing: 0.15em; color: rgba(150,170,220,0.3); min-width: 40px; text-align: center; }
 
     /* Phase label */
     .phase-label { text-align: center; margin-bottom: 2rem; animation: fadeIn 2.2s ease-out; }
@@ -146,7 +156,14 @@
     <!-- Content -->
     <div class="content">
       <!-- Moon -->
-      <div class="moon-wrap" id="moonWrap"></div>
+      <div class="moon-wrap">
+        <div class="moon-img-container" id="moonContainer"></div>
+        <div class="moon-zoom">
+          <button id="zoomOut" title="Зменшити">−</button>
+          <span class="zoom-level" id="zoomLevel">1.0×</span>
+          <button id="zoomIn" title="Збільшити">+</button>
+        </div>
+      </div>
 
       <!-- Phase label -->
       <div class="phase-label">
@@ -362,7 +379,7 @@ async function init() {
     // Year-specific visualization IDs
     const yearIds = { 2024: 'a005048', 2025: 'a005550', 2026: 'a005587', 2027: 'a005600' };
     const visId = yearIds[y] || 'a005587';
-    nasaUrl = `https://svs.gsfc.nasa.gov/vis/a000000/a005500/${visId}/frames/730x730_1x1_30p/moon.${frame}.jpg`;
+    nasaUrl = `https://svs.gsfc.nasa.gov/vis/a000000/${visId}/frames/730x730_1x1_30p/moon.${frame}.jpg`;
   } catch {}
 
   // Fetch moonrise/moonset
@@ -385,14 +402,53 @@ async function init() {
     catch { return ds; }
   };
 
-  // Moon image
-  const wrap = document.getElementById('moonWrap');
+  // Moon image — use proper DOM manipulation (no broken onerror escaping)
+  const container = document.getElementById('moonContainer');
+  container.innerHTML = '';
+  const baseSize = 300;
+  const currentScale = window._moonScale || 1;
+  const displaySize = Math.round(baseSize * currentScale);
   if (nasaUrl) {
-    const svgFallback = moonSVG(phase, il).replace(/'/g, "\\'").replace(/\n/g, '');
-    wrap.innerHTML = `<img src="${nasaUrl}" alt="NASA Moon" width="300" height="300" style="object-fit:cover;border-radius:50%;" onerror="this.outerHTML='${svgFallback}'" />`;
+    const img = document.createElement('img');
+    img.src = nasaUrl;
+    img.alt = 'NASA Moon';
+    img.width = displaySize;
+    img.height = displaySize;
+    img.style.cssText = 'object-fit:cover;border-radius:50%;';
+    img.onerror = function() {
+      container.innerHTML = '';
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = moonSVG(phase, il);
+      const svg = wrapper.firstChild;
+      svg.setAttribute('width', displaySize);
+      svg.setAttribute('height', displaySize);
+      container.appendChild(svg);
+    };
+    container.appendChild(img);
   } else {
-    wrap.innerHTML = moonSVG(phase, il);
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = moonSVG(phase, il);
+    const svg = wrapper.firstChild;
+    svg.setAttribute('width', displaySize);
+    svg.setAttribute('height', displaySize);
+    container.appendChild(svg);
   }
+
+  // Zoom controls
+  window._moonScale = window._moonScale || 1;
+  const zoomInBtn = document.getElementById('zoomIn');
+  const zoomOutBtn = document.getElementById('zoomOut');
+  const zoomLevelEl = document.getElementById('zoomLevel');
+  zoomLevelEl.textContent = window._moonScale.toFixed(1) + '×';
+  zoomInBtn.onclick = function() {
+    if (window._moonScale < 3) { window._moonScale = Math.round((window._moonScale + 0.2) * 10) / 10; updateMoonSize(container, phase, il, nasaUrl); }
+  };
+  zoomOutBtn.onclick = function() {
+    if (window._moonScale > 0.4) { window._moonScale = Math.round((window._moonScale - 0.2) * 10) / 10; updateMoonSize(container, phase, il, nasaUrl); }
+  };
+  window._currentNasaUrl = nasaUrl;
+  window._currentPhase = phase;
+  window._currentIllum = il;
 
   // Phase label
   document.getElementById('phaseName').textContent = phaseName(age);
@@ -442,6 +498,39 @@ async function init() {
   updateClock();
   setInterval(updateClock, 1000);
   setInterval(init, 60000);
+}
+
+// Zoom helper — re-render moon at current scale
+function updateMoonSize(container, phase, il, nasaUrl) {
+  const baseSize = 300;
+  const displaySize = Math.round(baseSize * window._moonScale);
+  document.getElementById('zoomLevel').textContent = window._moonScale.toFixed(1) + '×';
+  container.innerHTML = '';
+  if (nasaUrl) {
+    const img = document.createElement('img');
+    img.src = nasaUrl;
+    img.alt = 'NASA Moon';
+    img.width = displaySize;
+    img.height = displaySize;
+    img.style.cssText = 'object-fit:cover;border-radius:50%;';
+    img.onerror = function() {
+      container.innerHTML = '';
+      const w = document.createElement('div');
+      w.innerHTML = moonSVG(phase, il);
+      const svg = w.firstChild;
+      svg.setAttribute('width', displaySize);
+      svg.setAttribute('height', displaySize);
+      container.appendChild(svg);
+    };
+    container.appendChild(img);
+  } else {
+    const w = document.createElement('div');
+    w.innerHTML = moonSVG(phase, il);
+    const svg = w.firstChild;
+    svg.setAttribute('width', displaySize);
+    svg.setAttribute('height', displaySize);
+    container.appendChild(svg);
+  }
 }
 
 init();

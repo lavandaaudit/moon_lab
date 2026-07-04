@@ -368,18 +368,20 @@ async function init() {
   const ang = Math.round(2 * 1737.4 / dist * 180 / Math.PI * 60 * 100) / 100;
 
   // Compute NASA image URL directly (no API needed, no CORS issues)
+  // Verified against NASA API: https://svs.gsfc.nasa.gov/api/dialamoon/{timestamp}
+  // Correct path pattern: a005500/{visId}/frames/730x730_1x1_30p/moon.{frame}.jpg
   let nasaUrl = '';
   try {
-    // NASA SVS Dial-A-Moon: frame = (day_of_year * 24 + hour) + 1
     const y = now.getUTCFullYear();
     const jan1 = new Date(Date.UTC(y, 0, 1));
-    const dayOfYear = Math.floor((now.getTime() - jan1.getTime()) / 86400000);
+    const dayOfYear = Math.floor((now.getTime() - jan1.getTime()) / 86400000) + 1;
     const hour = now.getUTCHours();
-    const frame = dayOfYear * 24 + hour + 1;
-    // Year-specific visualization IDs
+    // Frame formula: (dayOfYear - 1) * 24 + hour + 1  (verified: Jul 4 12:00 UTC → frame 4429)
+    const frame = (dayOfYear - 1) * 24 + hour + 1;
+    // Year-specific visualization IDs (path includes a005500 parent directory)
     const yearIds = { 2024: 'a005048', 2025: 'a005550', 2026: 'a005587', 2027: 'a005600' };
     const visId = yearIds[y] || 'a005587';
-    nasaUrl = `https://svs.gsfc.nasa.gov/vis/a000000/${visId}/frames/730x730_1x1_30p/moon.${frame}.jpg`;
+    nasaUrl = `https://svs.gsfc.nasa.gov/vis/a000000/a005500/${visId}/frames/730x730_1x1_30p/moon.${frame}.jpg`;
   } catch {}
 
   // Fetch moonrise/moonset

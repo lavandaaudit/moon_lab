@@ -350,14 +350,19 @@ async function init() {
   const vel = Math.round(2 * Math.PI * dist / (SYN * 86400) * 100) / 100;
   const ang = Math.round(2 * 1737.4 / dist * 180 / Math.PI * 60 * 100) / 100;
 
-  // Fetch NASA image
+  // Compute NASA image URL directly (no API needed, no CORS issues)
   let nasaUrl = '';
   try {
-    const h = String(now.getUTCHours()).padStart(2, '0');
-    const ts = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-${String(now.getUTCDate()).padStart(2,'0')}T${h}:00`;
-    const res = await fetch(`https://svs.gsfc.nasa.gov/api/dialamoon/${ts}`);
-    const data = await res.json();
-    nasaUrl = data.image?.url || '';
+    // NASA SVS Dial-A-Moon: frame = (day_of_year * 24 + hour) + 1
+    const y = now.getUTCFullYear();
+    const jan1 = new Date(Date.UTC(y, 0, 1));
+    const dayOfYear = Math.floor((now.getTime() - jan1.getTime()) / 86400000);
+    const hour = now.getUTCHours();
+    const frame = dayOfYear * 24 + hour + 1;
+    // Year-specific visualization IDs
+    const yearIds = { 2024: 'a005048', 2025: 'a005550', 2026: 'a005587', 2027: 'a005600' };
+    const visId = yearIds[y] || 'a005587';
+    nasaUrl = `https://svs.gsfc.nasa.gov/vis/a000000/a005500/${visId}/frames/730x730_1x1_30p/moon.${frame}.jpg`;
   } catch {}
 
   // Fetch moonrise/moonset
@@ -383,7 +388,8 @@ async function init() {
   // Moon image
   const wrap = document.getElementById('moonWrap');
   if (nasaUrl) {
-    wrap.innerHTML = `<img src="${nasaUrl}" alt="NASA Moon" width="300" height="300" style="object-fit:cover;border-radius:50%;" />`;
+    const svgFallback = moonSVG(phase, il).replace(/'/g, "\\'").replace(/\n/g, '');
+    wrap.innerHTML = `<img src="${nasaUrl}" alt="NASA Moon" width="300" height="300" style="object-fit:cover;border-radius:50%;" onerror="this.outerHTML='${svgFallback}'" />`;
   } else {
     wrap.innerHTML = moonSVG(phase, il);
   }

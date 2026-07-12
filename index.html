@@ -362,21 +362,17 @@ function updateClock() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// MOON RENDERER
+// MOON RENDERER — REAL PHOTO ONLY, NO SVG
 // ═══════════════════════════════════════════════════════════
-function renderSVG(phase, il, size) {
+window._currentPhotoUrl = null;
+
+function showLoadingMoon(size) {
   var container = document.getElementById('moonContainer');
   if (!container) return;
-  container.innerHTML = '';
-  var wrapper = document.createElement('div');
-  wrapper.innerHTML = moonSVG(phase, il);
-  var svg = wrapper.firstChild;
-  svg.setAttribute('width', size);
-  svg.setAttribute('height', size);
-  container.appendChild(svg);
+  container.innerHTML = '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:50%;border:2px solid rgba(100,140,180,0.3);display:flex;align-items:center;justify-content:center;color:rgba(100,140,180,0.5);font-size:13px;">\u0417\u0430\u0432\u0430\u043D\u0442\u0430\u0436\u0435\u043D\u043D\u044F...</div>';
 }
 
-function loadNASAImage(url, size) {
+function loadMoonPhoto(url, size) {
   return new Promise(function(resolve, reject) {
     var container = document.getElementById('moonContainer');
     if (!container) { reject(new Error('no container')); return; }
@@ -385,18 +381,26 @@ function loadNASAImage(url, size) {
     img.onload = function() {
       if (done) return; done = true;
       container.innerHTML = '';
-      img.width = size;
-      img.height = size;
-      img.alt = 'NASA Moon';
-      img.style.cssText = 'object-fit:cover;border-radius:50%;';
+      img.style.cssText = 'object-fit:cover;border-radius:50%;width:' + size + 'px;height:' + size + 'px;transition:width 0.2s ease,height 0.2s ease;';
+      img.alt = 'Moon Photo';
+      img.id = 'moonPhoto';
       container.appendChild(img);
+      window._currentPhotoUrl = url;
       resolve(true);
     };
     img.onerror = function() { if (!done) { done = true; reject(new Error('img fail')); } };
     img.referrerPolicy = 'no-referrer';
     img.src = url;
-    setTimeout(function() { if (!done) { done = true; reject(new Error('timeout')); } }, 10000);
+    setTimeout(function() { if (!done) { done = true; reject(new Error('timeout')); } }, 8000);
   });
+}
+
+function resizeMoonPhoto(size) {
+  var img = document.getElementById('moonPhoto');
+  if (img) {
+    img.style.width = size + 'px';
+    img.style.height = size + 'px';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -571,11 +575,11 @@ async function init() {
   var vel = Math.round(2 * Math.PI * dist / (SYN * 86400) * 100) / 100;
   var ang = Math.round(2 * 1737.4 / dist * 180 / Math.PI * 60 * 100) / 100;
 
-  // Step 2: SVG moon immediately (guaranteed)
+  // Step 2: Show loading placeholder for photo
   var baseSize = 300;
   window._moonScale = window._moonScale || 1;
   var displaySize = Math.round(baseSize * window._moonScale);
-  renderSVG(phase, il, displaySize);
+  showLoadingMoon(displaySize);
 
   // Step 3: Show ALL data immediately with Meeus values
   var rows = buildDataRows(age, il, dist, vel, ang, pos, lib, temp, null, null, ev, null);
@@ -590,14 +594,14 @@ async function init() {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
 
-  // Zoom controls
+  // Zoom controls — resize the REAL photo, not SVG
   document.getElementById('zoomLevel').textContent = window._moonScale.toFixed(1) + '\u00D7';
   document.getElementById('zoomIn').onclick = function() {
     if (window._moonScale < 3) {
       window._moonScale = Math.round((window._moonScale + 0.2) * 10) / 10;
       var sz = Math.round(300 * window._moonScale);
       document.getElementById('zoomLevel').textContent = window._moonScale.toFixed(1) + '\u00D7';
-      renderSVG(window._currentPhase || phase, window._currentIllum || il, sz);
+      resizeMoonPhoto(sz);
     }
   };
   document.getElementById('zoomOut').onclick = function() {
@@ -605,7 +609,7 @@ async function init() {
       window._moonScale = Math.round((window._moonScale - 0.2) * 10) / 10;
       var sz = Math.round(300 * window._moonScale);
       document.getElementById('zoomLevel').textContent = window._moonScale.toFixed(1) + '\u00D7';
-      renderSVG(window._currentPhase || phase, window._currentIllum || il, sz);
+      resizeMoonPhoto(sz);
     }
   };
 
@@ -621,16 +625,16 @@ async function init() {
   var ukalUrl = ukalendarPhaseUrl(age);
   var photoLoaded = false;
   if (ukalUrl) {
-    try { await loadNASAImage(ukalUrl, displaySize); photoLoaded = true; } catch (e) {}
+    try { await loadMoonPhoto(ukalUrl, displaySize); photoLoaded = true; } catch (e) {}
   }
   if (!photoLoaded) {
     var nasaUrl = computeNASAUrl(now);
     if (nasaUrl) {
-      try { await loadNASAImage(nasaUrl, displaySize); } catch (e) {}
+      try { await loadMoonPhoto(nasaUrl, displaySize); } catch (e) {}
     }
   }
 
-  // Step 6: Background tasks (non-blocking, page already shows NASA photo or SVG)
+  // Step 6: Background tasks (non-blocking, page already shows real photo)
   var nasa = null;
   var mr = null, ms = null;
 
@@ -664,27 +668,29 @@ async function refreshData() {
   var vel = Math.round(2 * Math.PI * dist / (SYN * 86400) * 100) / 100;
   var ang = Math.round(2 * 1737.4 / dist * 180 / Math.PI * 60 * 100) / 100;
 
-  // Update SVG
-  renderSVG(phase, il, Math.round(300 * window._moonScale));
+  // Reload real moon photo if phase changed
+  var sz = Math.round(300 * window._moonScale);
+  var newUrl = ukalendarPhaseUrl(age);
+  if (newUrl !== window._currentPhotoUrl) {
+    var loaded = false;
+    if (newUrl) {
+      try { await loadMoonPhoto(newUrl, sz); loaded = true; } catch (e) {}
+    }
+    if (!loaded) {
+      var directUrl = computeNASAUrl(now);
+      if (directUrl) {
+        try { await loadMoonPhoto(directUrl, sz); } catch (e) {}
+      }
+    }
+  } else {
+    resizeMoonPhoto(sz);
+  }
   updatePhaseLabel(age, il);
 
   // Show Meeus data immediately
   var rows = buildDataRows(age, il, dist, vel, ang, pos, lib, temp, null, null, ev, null);
   renderDataGrid(rows);
   renderCalendar(cal, now.getDate());
-
-  // Load real moon photo — ukalendar first (fast), NASA fallback
-  var ukalUrl2 = ukalendarPhaseUrl(age);
-  var loaded = false;
-  if (ukalUrl2) {
-    try { await loadNASAImage(ukalUrl2, Math.round(300 * window._moonScale)); loaded = true; } catch (e) {}
-  }
-  if (!loaded) {
-    var directUrl = computeNASAUrl(now);
-    if (directUrl) {
-      try { await loadNASAImage(directUrl, Math.round(300 * window._moonScale)); } catch (e) {}
-    }
-  }
 
   // NASA API for telemetry in background
   var nasa = null;

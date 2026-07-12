@@ -189,7 +189,7 @@
     <!-- Footer -->
     <div class="footer">
       <span class="left">Ibonarium Moon Lab © 2025</span>
-      <span class="right">NASA SVS Dial-A-Moon API + Алгоритм Міуса (fallback)</span>
+      <span class="right">Фото: ukalendar.com + NASA SVS Dial-A-Moon | Алгоритм Міуса</span>
     </div>
   </div>
 
@@ -449,7 +449,23 @@ async function fetchNASADialAMoon(now) {
   return null;
 }
 
-// Compute NASA image URL directly (fallback if API fails)
+// ═══════════════════════════════════════════════════════════
+// UKALENDAR MOON PHOTOS — real photos, 8 phases, fast & reliable
+// Source: https://www.ukalendar.com/tools/moon-today
+// ═══════════════════════════════════════════════════════════
+function ukalendarPhaseUrl(age) {
+  if (age < 1.85) return 'https://www.ukalendar.com/media/mp/phase_new.webp';
+  if (age < 5.55) return 'https://www.ukalendar.com/media/mp/phase_waxing_crescent.webp';
+  if (age < 9.25) return 'https://www.ukalendar.com/media/mp/phase_first_quarter.webp';
+  if (age < 12.95) return 'https://www.ukalendar.com/media/mp/phase_waxing_gibbous.webp';
+  if (age < 16.65) return 'https://www.ukalendar.com/media/mp/phase_full.webp';
+  if (age < 20.35) return 'https://www.ukalendar.com/media/mp/phase_waning_gibbous.webp';
+  if (age < 24.05) return 'https://www.ukalendar.com/media/mp/phase_last_quarter.webp';
+  if (age < 27.75) return 'https://www.ukalendar.com/media/mp/phase_waning_crescent.webp';
+  return 'https://www.ukalendar.com/media/mp/phase_new.webp';
+}
+
+// Compute NASA image URL directly (fallback if ukalendar fails)
 function computeNASAUrl(now) {
   try {
     var y = now.getUTCFullYear();
@@ -601,10 +617,17 @@ async function init() {
     window._refreshTimer = setInterval(function() { refreshData(); }, 60000);
   }
 
-  // Step 5: Load NASA photo IMMEDIATELY (direct URL, no CORS needed)
-  var nasaImageUrl = computeNASAUrl(now);
-  if (nasaImageUrl) {
-    try { await loadNASAImage(nasaImageUrl, displaySize); } catch (e) {}
+  // Step 5: Load REAL moon photo — ukalendar first (fast, 8 phases), NASA fallback
+  var ukalUrl = ukalendarPhaseUrl(age);
+  var photoLoaded = false;
+  if (ukalUrl) {
+    try { await loadNASAImage(ukalUrl, displaySize); photoLoaded = true; } catch (e) {}
+  }
+  if (!photoLoaded) {
+    var nasaUrl = computeNASAUrl(now);
+    if (nasaUrl) {
+      try { await loadNASAImage(nasaUrl, displaySize); } catch (e) {}
+    }
   }
 
   // Step 6: Background tasks (non-blocking, page already shows NASA photo or SVG)
@@ -650,10 +673,17 @@ async function refreshData() {
   renderDataGrid(rows);
   renderCalendar(cal, now.getDate());
 
-  // Load NASA photo directly (fast, no CORS)
-  var directUrl = computeNASAUrl(now);
-  if (directUrl) {
-    try { await loadNASAImage(directUrl, Math.round(300 * window._moonScale)); } catch (e) {}
+  // Load real moon photo — ukalendar first (fast), NASA fallback
+  var ukalUrl2 = ukalendarPhaseUrl(age);
+  var loaded = false;
+  if (ukalUrl2) {
+    try { await loadNASAImage(ukalUrl2, Math.round(300 * window._moonScale)); loaded = true; } catch (e) {}
+  }
+  if (!loaded) {
+    var directUrl = computeNASAUrl(now);
+    if (directUrl) {
+      try { await loadNASAImage(directUrl, Math.round(300 * window._moonScale)); } catch (e) {}
+    }
   }
 
   // NASA API for telemetry in background

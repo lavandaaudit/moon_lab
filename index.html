@@ -189,7 +189,7 @@
     <!-- Footer -->
     <div class="footer">
       <span class="left">Ibonarium Moon Lab © 2025</span>
-      <span class="right">Фото: ukalendar.com + NASA SVS Dial-A-Moon | Алгоритм Міуса</span>
+      <span class="right">Фото: NASA SVS Dial-A-Moon (local 30 frames) | Алгоритм Міуса</span>
     </div>
   </div>
 
@@ -454,22 +454,27 @@ async function fetchNASADialAMoon(now) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// UKALENDAR MOON PHOTOS — real photos, 8 phases, fast & reliable
-// Source: https://www.ukalendar.com/tools/moon-today
+// LOCAL MOON PHOTOS — NASA SVS 2026, 30 frames, 730x730px
+// Source: https://svs.gsfc.nasa.gov/4992 — Public Domain
+// Frames cover one full synodic month, repeat every cycle
 // ═══════════════════════════════════════════════════════════
-function ukalendarPhaseUrl(age) {
-  if (age < 1.85) return 'https://www.ukalendar.com/media/mp/phase_new.webp';
-  if (age < 5.55) return 'https://www.ukalendar.com/media/mp/phase_waxing_crescent.webp';
-  if (age < 9.25) return 'https://www.ukalendar.com/media/mp/phase_first_quarter.webp';
-  if (age < 12.95) return 'https://www.ukalendar.com/media/mp/phase_waxing_gibbous.webp';
-  if (age < 16.65) return 'https://www.ukalendar.com/media/mp/phase_full.webp';
-  if (age < 20.35) return 'https://www.ukalendar.com/media/mp/phase_waning_gibbous.webp';
-  if (age < 24.05) return 'https://www.ukalendar.com/media/mp/phase_last_quarter.webp';
-  if (age < 27.75) return 'https://www.ukalendar.com/media/mp/phase_waning_crescent.webp';
-  return 'https://www.ukalendar.com/media/mp/phase_new.webp';
+var LOCAL_FRAMES = 30;
+var _localFrameOffset = null;
+
+function computeLocalFrameOffset() {
+  var jan1 = new Date('2026-01-01T00:00:00Z').getTime();
+  _localFrameOffset = ((jan1 - KNOWN_NM) / 86400000) % SYN;
 }
 
-// Compute NASA image URL directly (fallback if ukalendar fails)
+function localMoonUrl(age) {
+  if (_localFrameOffset === null) computeLocalFrameOffset();
+  var frameAge = ((age - _localFrameOffset) % SYN + SYN) % SYN;
+  var idx = Math.round(frameAge) % LOCAL_FRAMES;
+  if (idx === 0) idx = LOCAL_FRAMES;
+  return './moon/phase_' + (idx < 10 ? '0' : '') + idx + '.jpg';
+}
+
+// NASA SVS direct URL (remote fallback only)
 function computeNASAUrl(now) {
   try {
     var y = now.getUTCFullYear();
@@ -621,12 +626,10 @@ async function init() {
     window._refreshTimer = setInterval(function() { refreshData(); }, 60000);
   }
 
-  // Step 5: Load REAL moon photo — ukalendar first (fast, 8 phases), NASA fallback
-  var ukalUrl = ukalendarPhaseUrl(age);
+  // Step 5: Load REAL moon photo — LOCAL first (instant), NASA remote fallback
+  var localUrl = localMoonUrl(age);
   var photoLoaded = false;
-  if (ukalUrl) {
-    try { await loadMoonPhoto(ukalUrl, displaySize); photoLoaded = true; } catch (e) {}
-  }
+  try { await loadMoonPhoto(localUrl, displaySize); photoLoaded = true; } catch (e) {}
   if (!photoLoaded) {
     var nasaUrl = computeNASAUrl(now);
     if (nasaUrl) {
@@ -668,14 +671,12 @@ async function refreshData() {
   var vel = Math.round(2 * Math.PI * dist / (SYN * 86400) * 100) / 100;
   var ang = Math.round(2 * 1737.4 / dist * 180 / Math.PI * 60 * 100) / 100;
 
-  // Reload real moon photo if phase changed
+  // Reload local moon photo if phase changed
   var sz = Math.round(300 * window._moonScale);
-  var newUrl = ukalendarPhaseUrl(age);
+  var newUrl = localMoonUrl(age);
   if (newUrl !== window._currentPhotoUrl) {
     var loaded = false;
-    if (newUrl) {
-      try { await loadMoonPhoto(newUrl, sz); loaded = true; } catch (e) {}
-    }
+    try { await loadMoonPhoto(newUrl, sz); loaded = true; } catch (e) {}
     if (!loaded) {
       var directUrl = computeNASAUrl(now);
       if (directUrl) {

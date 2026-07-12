@@ -2,11 +2,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ibonarium — Місячна Лабораторія</title>
-  <meta name="description" content="Ibonarium Moon Lab — Реальна телеметрія Місяця в реальному часі. NASA SVS Dial-A-Moon.">
+  <meta name="description" content="Ibonarium Moon Lab — Реальна телеметрія Місяця в реальному часі.">
   <meta property="og:title" content="Ibonarium Moon Lab — Телеметрія Місяця">
   <meta property="og:description" content="Реальні дані Місяця: фаза, освітленість, відстань, температура, позиція.">
   <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🌙&lt;/text&gt;&lt;/svg&gt;">
   <style>
+
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     @keyframes twinkle {
@@ -125,6 +126,7 @@
     .spinner { width: 48px; height: 48px; border-radius: 50%; border: 2px solid rgba(150,170,220,0.2); border-top-color: rgba(150,170,220,0.6); animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(150,170,220,0.6); font-family: 'Courier New', monospace; }
+  
   </style>
 </head>
 <body>
@@ -136,15 +138,15 @@
   </div>
 
   <!-- Page -->
-  <div id="app" class="page" style="display: flex;">
-    <div id="starfield" class="starfield"></div></div>
+  <div id="app" class="page" style="display: none;">
+    <div id="starfield" class="starfield"></div>
 
     <!-- Header -->
     <div class="header">
       <span class="mission">Місія: Lunar-X1-Sync</span>
       <h1>Ibonarium</h1>
       <span class="subtitle">Місячна Лабораторія — Телеметрія в Реальному Часі</span>
-      <span id="clock" class="clock">11:20:11 UTC</span>
+      <span id="clock" class="clock">--:--:-- UTC</span>
       <div class="live">
         <span class="live-dot"></span>
         <span class="live-text">Наживо</span>
@@ -165,14 +167,14 @@
 
       <!-- Phase label -->
       <div class="phase-label">
-        <p class="name" id="phaseName">Спадаючий Серп</p>
-        <p class="illum" id="illumLabel">Освітленість 5.97%</p>
-        <div class="progress-bar"><div class="fill" id="progressFill" style="width: 92.1%;"></div></div>
+        <p class="name" id="phaseName">—</p>
+        <p class="illum" id="illumLabel">—</p>
+        <div class="progress-bar"><div class="fill" id="progressFill" style="width: 0%;"></div></div>
         <div class="progress-labels"><span>НМ</span><span>ПЧ</span><span>ПМ</span><span>ОЧ</span></div>
       </div>
 
       <!-- Data grid -->
-      <div class="data-grid" id="dataGrid"><div class="data-item"><span class="label">ФАЗА</span><span class="value">Спадаючий Серп</span></div><div class="data-item"><span class="label">ВІК</span><span class="value">27д 5г 2хв</span></div><div class="data-item"><span class="label">ОСВІТЛЕНІСТЬ</span><span class="value">5.97%</span></div><div class="data-item"><span class="label">ВІДСТАНЬ</span><span class="value">403,626 км</span></div><div class="data-item"><span class="label">ШВИДКІСТЬ</span><span class="value">0.99 км/с</span></div><div class="data-item"><span class="label">КУТОВИЙ РОЗМІР</span><span class="value">29.6'</span></div><div class="data-item"><span class="label">ПРЯМЕ СХИДЖЕННЯ</span><span class="value">5h 33m 46s</span></div><div class="data-item"><span class="label">СХИЛЕННЯ</span><span class="value">+28° 3'</span></div><div class="data-item"><span class="label">ЛІБРАЦІЯ</span><span class="value">-1.1° / 0.8°</span></div><div class="data-item"><span class="label">ТЕМП. ДЕННОЇ</span><span class="value">125°C</span></div><div class="data-item"><span class="label">ТЕМП. НІЧНОЇ</span><span class="value">-177°C</span></div><div class="data-item"><span class="label">МІСЯЦЕСХІД</span><span class="value">—</span></div><div class="data-item"><span class="label">МІСЯЦЕЗАХІД</span><span class="value">—</span></div><div class="data-item"><span class="label">НАСТУПНИЙ ПОВНИЙ</span><span class="value">29 лип.</span></div><div class="data-item"><span class="label">НАСТУПНИЙ НОВИЙ</span><span class="value">14 лип.</span></div><div class="data-item"><span class="label">СИНОД. ПЕРІОД</span><span class="value">29.53 дн</span></div><div class="data-item"><span class="label">ЦИКЛ</span><span class="value">92.1%</span></div></div>
+      <div class="data-grid" id="dataGrid"></div>
 
       <!-- Calendar -->
       <div class="calendar">
@@ -180,131 +182,7 @@
           <span>Щомісячний Огляд</span>
           <div class="line"></div>
         </div>
-        <div class="calendar-grid" id="calendarGrid"><div class="cal-day">
-      <span class="day-num">1</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c05499"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c05499)"><path d="M 10 0 A 10 10 0 0 0 10 20 A 9.513218623262766 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">98</span>
-    </div><div class="cal-day">
-      <span class="day-num">2</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c05837"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c05837)"><path d="M 10 0 A 10 10 0 0 0 10 20 A 8.647880716240909 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">93</span>
-    </div><div class="cal-day">
-      <span class="day-num">3</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c06176"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c06176)"><path d="M 10 0 A 10 10 0 0 0 10 20 A 7.392523413512411 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">87</span>
-    </div><div class="cal-day">
-      <span class="day-num">4</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c06515"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c06515)"><path d="M 10 0 A 10 10 0 0 0 10 20 A 5.803763325859914 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">79</span>
-    </div><div class="cal-day">
-      <span class="day-num">5</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c06853"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c06853)"><path d="M 10 0 A 10 10 0 0 0 10 20 A 3.9532535287178683 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">70</span>
-    </div><div class="cal-day">
-      <span class="day-num">6</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c07192"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c07192)"><path d="M 10 0 A 10 10 0 0 0 10 20 A 1.9244520086742796 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">60</span>
-    </div><div class="cal-day">
-      <span class="day-num">7</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c07530"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c07530)"><path d="M 10 0 A 0.1911422914870997 10 0 0 0 10 20 A 10 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">49</span>
-    </div><div class="cal-day">
-      <span class="day-num">8</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c07869"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c07869)"><path d="M 10 0 A 2.298116074846047 10 0 0 0 10 20 A 10 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">39</span>
-    </div><div class="cal-day">
-      <span class="day-num">9</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c08208"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c08208)"><path d="M 10 0 A 4.301444829765612 10 0 0 0 10 20 A 10 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">28</span>
-    </div><div class="cal-day">
-      <span class="day-num">10</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c08546"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c08546)"><path d="M 10 0 A 6.110778435096681 10 0 0 0 10 20 A 10 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">19</span>
-    </div><div class="cal-day">
-      <span class="day-num">11</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c08885"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c08885)"><path d="M 10 0 A 7.644515950384827 10 0 0 0 10 20 A 10 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">12</span>
-    </div><div class="cal-day today">
-      <span class="day-num is-today">12</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c09224"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c09224)"><path d="M 10 0 A 8.83348581805273 10 0 0 0 10 20 A 10 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">6</span>
-    </div><div class="cal-day">
-      <span class="day-num">13</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c09562"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c09562)"><path d="M 10 0 A 9.624065500450165 10 0 0 0 10 20 A 10 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">2</span>
-    </div><div class="cal-day">
-      <span class="day-num">14</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c09901"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c09901)"><path d="M 10 0 A 9.980599856149535 10 0 0 0 10 20 A 10 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">0</span>
-    </div><div class="cal-day">
-      <span class="day-num">15</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c00239"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c00239)"><path d="M 10 0 A 9.887009186722832 10 0 0 1 10 20 A 10 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">1</span>
-    </div><div class="cal-day">
-      <span class="day-num">16</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c00578"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c00578)"><path d="M 10 0 A 9.347514431095012 10 0 0 1 10 20 A 10 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">3</span>
-    </div><div class="cal-day">
-      <span class="day-num">17</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c00917"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c00917)"><path d="M 10 0 A 8.386446801210493 10 0 0 1 10 20 A 10 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">8</span>
-    </div><div class="cal-day">
-      <span class="day-num">18</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c01255"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c01255)"><path d="M 10 0 A 7.047150444443649 10 0 0 1 10 20 A 10 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">15</span>
-    </div><div class="cal-day">
-      <span class="day-num">19</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c01594"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c01594)"><path d="M 10 0 A 5.390027622675514 10 0 0 1 10 20 A 10 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">23</span>
-    </div><div class="cal-day">
-      <span class="day-num">20</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c01933"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c01933)"><path d="M 10 0 A 3.4898145704547296 10 0 0 1 10 20 A 10 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">33</span>
-    </div><div class="cal-day">
-      <span class="day-num">21</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c02271"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c02271)"><path d="M 10 0 A 1.432210891031977 10 0 0 1 10 20 A 10 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">43</span>
-    </div><div class="cal-day">
-      <span class="day-num">22</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c02610"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c02610)"><path d="M 10 0 A 10 10 0 0 1 10 20 A 0.6899854955029048 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">53</span>
-    </div><div class="cal-day">
-      <span class="day-num">23</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c02949"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c02949)"><path d="M 10 0 A 10 10 0 0 1 10 20 A 2.7810635381530218 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">64</span>
-    </div><div class="cal-day">
-      <span class="day-num">24</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c03287"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c03287)"><path d="M 10 0 A 10 10 0 0 1 10 20 A 4.746715623142185 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">74</span>
-    </div><div class="cal-day">
-      <span class="day-num">25</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c03626"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c03626)"><path d="M 10 0 A 10 10 0 0 1 10 20 A 6.498290847027982 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">82</span>
-    </div><div class="cal-day">
-      <span class="day-num">26</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c03964"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c03964)"><path d="M 10 0 A 10 10 0 0 1 10 20 A 7.9567931721949 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">90</span>
-    </div><div class="cal-day">
-      <span class="day-num">27</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c04303"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c04303)"><path d="M 10 0 A 10 10 0 0 1 10 20 A 9.056444147926099 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">95</span>
-    </div><div class="cal-day">
-      <span class="day-num">28</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c04642"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c04642)"><path d="M 10 0 A 10 10 0 0 1 10 20 A 9.747649518343666 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">99</span>
-    </div><div class="cal-day">
-      <span class="day-num">29</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c04980"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c04980)"><path d="M 10 0 A 10 10 0 0 1 10 20 A 9.999235923207662 10 0 0 1 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">100</span>
-    </div><div class="cal-day">
-      <span class="day-num">30</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c05319"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c05319)"><path d="M 10 0 A 10 10 0 0 0 10 20 A 9.799856816374268 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">99</span>
-    </div><div class="cal-day">
-      <span class="day-num">31</span>
-      <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9.5" fill="#0a0a14"></circle><clipPath id="c05658"><circle cx="10" cy="10" r="9.5"></circle></clipPath><g clip-path="url(#c05658)"><path d="M 10 0 A 10 10 0 0 0 10 20 A 9.158504194994604 10 0 0 0 10 0" fill="rgba(200,200,210,0.7)"></path></g></svg>
-      <span class="day-pct">96</span>
-    </div></div>
+        <div class="calendar-grid" id="calendarGrid"></div>
       </div>
     </div>
 
@@ -319,8 +197,8 @@
 // ═══════════════════════════════════════════════════════════
 // ASTRONOMICAL CALCULATIONS — Jean Meeus, "Astronomical Algorithms"
 // ═══════════════════════════════════════════════════════════
-const SYN = 29.53058867;
-const KNOWN_NM = new Date('2000-01-06T18:14:00Z').getTime();
+var SYN = 29.53058867;
+var KNOWN_NM = new Date('2000-01-06T18:14:00Z').getTime();
 
 function moonAge(now) {
   return ((now.getTime() - KNOWN_NM) / 86400000) % SYN;
@@ -331,41 +209,41 @@ function phaseFromAge(age) { return age / SYN; }
 function illum(phase) { return (1 - Math.cos(phase * 2 * Math.PI)) / 2; }
 
 function phaseName(age) {
-  if (age < 1.85) return '\u041D\u043E\u0432\u0438\u0439 \u041C\u0456\u0441\u044F\u0446\u044C';
-  if (age < 5.55) return '\u0417\u0440\u043E\u0441\u0442\u0430\u044E\u0447\u0438\u0439 \u0421\u0435\u0440\u043F';
-  if (age < 9.25) return '\u041F\u0435\u0440\u0448\u0430 \u0427\u0432\u0435\u0440\u0442\u044C';
-  if (age < 12.95) return '\u0417\u0440\u043E\u0441\u0442\u0430\u044E\u0447\u0438\u0439 \u041E\u043F\u0443\u043A\u043B\u0438\u0439';
-  if (age < 16.65) return '\u041F\u043E\u0432\u043D\u0438\u0439 \u041C\u0456\u0441\u044F\u0446\u044C';
-  if (age < 20.35) return '\u0421\u043F\u0430\u0434\u0430\u044E\u0447\u0438\u0439 \u041E\u043F\u0443\u043A\u043B\u0438\u0439';
-  if (age < 24.05) return '\u041E\u0441\u0442\u0430\u043D\u043D\u044F \u0427\u0432\u0435\u0440\u0442\u044C';
-  if (age < 27.75) return '\u0421\u043F\u0430\u0434\u0430\u044E\u0447\u0438\u0439 \u0421\u0435\u0440\u043F';
-  return '\u041D\u043E\u0432\u0438\u0439 \u041C\u0456\u0441\u044F\u0446\u044C';
+  if (age < 1.85) return 'Новий Місяць';
+  if (age < 5.55) return 'Зростаючий Серп';
+  if (age < 9.25) return 'Перша Чверть';
+  if (age < 12.95) return 'Зростаючий Опуклий';
+  if (age < 16.65) return 'Повний Місяць';
+  if (age < 20.35) return 'Спадаючий Опуклий';
+  if (age < 24.05) return 'Остання Чверть';
+  if (age < 27.75) return 'Спадаючий Серп';
+  return 'Новий Місяць';
 }
 
 function moonDist(now) {
-  const T = (now.getTime() - new Date('2000-01-01T12:00:00Z').getTime()) / 86400000;
-  const M = (13.1763966 + 0.9856473 * T) % 360;
+  var T = (now.getTime() - new Date('2000-01-01T12:00:00Z').getTime()) / 86400000;
+  var M = (13.1763966 + 0.9856473 * T) % 360;
   return Math.round(384400 * (1 - 0.0549 * 0.0549) / (1 + 0.0549 * Math.cos(M * Math.PI / 180)));
 }
 
 function moonPos(now) {
-  const T = (now.getTime() - new Date('2000-01-01T12:00:00Z').getTime()) / 86400000;
-  const L0 = (218.3165 + 13.176396 * T) % 360;
-  const M = (134.9634 + 13.064993 * T) % 360;
-  const F = (93.2721 + 13.229350 * T) % 360;
-  const lon = L0 + 6.289 * Math.sin(M * Math.PI / 180);
-  const lat = 5.128 * Math.sin(F * Math.PI / 180);
-  const lr = lon * Math.PI / 180, la = lat * Math.PI / 180, ob = 23.4393 * Math.PI / 180;
-  const ra = Math.atan2(Math.sin(lr) * Math.cos(ob) - Math.tan(la) * Math.sin(ob), Math.cos(lr));
-  const dec = Math.asin(Math.sin(la) * Math.cos(ob) + Math.cos(la) * Math.sin(ob) * Math.sin(lr));
-  let rh = ((ra * 180 / Math.PI) / 15 + 24) % 24;
-  const rH = Math.floor(rh), rM = Math.floor((rh - rH) * 60), rS = Math.floor(((rh - rH) * 60 - rM) * 60);
-  const dd = dec * 180 / Math.PI, dD = Math.floor(Math.abs(dd)), dM = Math.floor((Math.abs(dd) - dD) * 60);
+  var T = (now.getTime() - new Date('2000-01-01T12:00:00Z').getTime()) / 86400000;
+  var L0 = (218.3165 + 13.176396 * T) % 360;
+  var M = (134.9634 + 13.064993 * T) % 360;
+  var F = (93.2721 + 13.229350 * T) % 360;
+  var lon = L0 + 6.289 * Math.sin(M * Math.PI / 180);
+  var lat = 5.128 * Math.sin(F * Math.PI / 180);
+  var lr = lon * Math.PI / 180, la = lat * Math.PI / 180, ob = 23.4393 * Math.PI / 180;
+  var ra = Math.atan2(Math.sin(lr) * Math.cos(ob) - Math.tan(la) * Math.sin(ob), Math.cos(lr));
+  var dec = Math.asin(Math.sin(la) * Math.cos(ob) + Math.cos(la) * Math.sin(ob) * Math.sin(lr));
+  var rh = ((ra * 180 / Math.PI) / 15 + 24) % 24;
+  var rH = Math.floor(rh), rM = Math.floor((rh - rH) * 60), rS = Math.floor(((rh - rH) * 60 - rM) * 60);
+  var dd = dec * 180 / Math.PI, dD = Math.floor(Math.abs(dd)), dM = Math.floor((Math.abs(dd) - dD) * 60);
   return { ra: rH + 'h ' + rM + 'm ' + rS + 's', dec: (dd >= 0 ? '+' : '-') + dD + '\u00B0 ' + dM + "'" };
 }
 
 function libration(now) {
-  const T = (now.getTime() - new Date('2000-01-01T12:00:00Z').getTime()) / 86400000;
+  var T = (now.getTime() - new Date('2000-01-01T12:00:00Z').getTime()) / 86400000;
   return {
     lon: Math.round((-1.25 + 6.49 * Math.sin((134.9634 + 13.064993 * T) * Math.PI / 180)) * 10) / 10,
     lat: Math.round((4.88 - 4.37 * Math.sin((93.2721 + 13.229350 * T) * Math.PI / 180)) * 10) / 10
@@ -448,13 +326,14 @@ function miniMoonSVG(phase, illumination) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// STARFIELD
+// STARFIELD — opacity-only twinkle, NO scale
 // ═══════════════════════════════════════════════════════════
 var _starsCreated = false;
 function createStars() {
   if (_starsCreated) return;
   _starsCreated = true;
   var sf = document.getElementById('starfield');
+  if (!sf) return;
   sf.innerHTML = '';
   for (var i = 0; i < 200; i++) {
     var s = document.createElement('div');
@@ -478,14 +357,16 @@ function updateClock() {
   var h = String(now.getUTCHours()).padStart(2, '0');
   var m = String(now.getUTCMinutes()).padStart(2, '0');
   var s = String(now.getUTCSeconds()).padStart(2, '0');
-  document.getElementById('clock').textContent = h + ':' + m + ':' + s + ' UTC';
+  var el = document.getElementById('clock');
+  if (el) el.textContent = h + ':' + m + ':' + s + ' UTC';
 }
 
 // ═══════════════════════════════════════════════════════════
-// MOON RENDERER — SVG first (guaranteed), NASA image async upgrade
+// MOON RENDERER
 // ═══════════════════════════════════════════════════════════
 function renderSVG(phase, il, size) {
   var container = document.getElementById('moonContainer');
+  if (!container) return;
   container.innerHTML = '';
   var wrapper = document.createElement('div');
   wrapper.innerHTML = moonSVG(phase, il);
@@ -498,8 +379,11 @@ function renderSVG(phase, il, size) {
 function loadNASAImage(url, size) {
   return new Promise(function(resolve, reject) {
     var container = document.getElementById('moonContainer');
+    if (!container) { reject(new Error('no container')); return; }
     var img = new Image();
+    var done = false;
     img.onload = function() {
+      if (done) return; done = true;
       container.innerHTML = '';
       img.width = size;
       img.height = size;
@@ -508,17 +392,15 @@ function loadNASAImage(url, size) {
       container.appendChild(img);
       resolve(true);
     };
-    img.onerror = function() { reject(new Error('img fail')); };
+    img.onerror = function() { if (!done) { done = true; reject(new Error('img fail')); } };
+    img.referrerPolicy = 'no-referrer';
     img.src = url;
-    setTimeout(function() { reject(new Error('timeout')); }, 8000);
+    setTimeout(function() { if (!done) { done = true; reject(new Error('timeout')); } }, 10000);
   });
 }
 
 // ═══════════════════════════════════════════════════════════
-// NASA DIAL-A-MOON API
-// Format: https://svs.gsfc.nasa.gov/api/dialamoon/YYYY-MM-DDTHH:MM
-// Returns: imageUrl, phase (0-100%), age (days), diameter (arcsec),
-//          distance (km), j2000_ra, j2000_dec, subearth_lon/lat, subsolar_lon/lat
+// NASA DIAL-A-MOON API (best-effort, CORS proxies)
 // ═══════════════════════════════════════════════════════════
 async function fetchNASADialAMoon(now) {
   var y = now.getUTCFullYear();
@@ -527,7 +409,6 @@ async function fetchNASADialAMoon(now) {
   var h = String(now.getUTCHours()).padStart(2, '0');
   var apiUrl = 'https://svs.gsfc.nasa.gov/api/dialamoon/' + y + '-' + mo + '-' + d + 'T' + h + ':00';
 
-  // Try direct (NASA may allow CORS), then CORS proxies
   var urls = [
     apiUrl,
     'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(apiUrl),
@@ -537,18 +418,16 @@ async function fetchNASADialAMoon(now) {
 
   for (var i = 0; i < urls.length; i++) {
     try {
-      var res = await fetch(urls[i], { signal: AbortSignal.timeout(6000) });
+      var res = await fetch(urls[i], { signal: AbortSignal.timeout(4000) });
       if (!res.ok) continue;
       var data = await res.json();
       if (!data || !data.image || !data.image.url) continue;
 
-      // Convert RA from degrees to H M S
       var raDeg = data.j2000_ra || 0;
       var raH = Math.floor(raDeg / 15);
       var raM = Math.floor((raDeg / 15 - raH) * 60);
       var raS = Math.floor(((raDeg / 15 - raH) * 60 - raM) * 60);
 
-      // Convert DEC from degrees to D° M'
       var decDeg = data.j2000_dec || 0;
       var decD = Math.floor(Math.abs(decDeg));
       var decM = Math.floor((Math.abs(decDeg) - decD) * 60);
@@ -559,24 +438,18 @@ async function fetchNASADialAMoon(now) {
         age: data.age,
         diameter: data.diameter,
         distance: data.distance,
-        obscuration: data.obscuration || 0,
         ra: raH + 'h ' + raM + 'm ' + raS + 's',
         dec: (decDeg >= 0 ? '+' : '-') + decD + '\u00B0 ' + decM + "'",
         libLon: data.subearth_lon,
         libLat: data.subearth_lat,
-        subsolarLon: data.subsolar_lon,
-        subsolarLat: data.subsolar_lat,
-        posAngle: data.posangle,
         source: 'NASA Dial-A-Moon API'
       };
-    } catch (e) { /* try next URL */ }
+    } catch (e) { /* try next */ }
   }
   return null;
 }
 
-// ═══════════════════════════════════════════════════════════
-// FALLBACK: Compute NASA image URL manually (less reliable)
-// ═══════════════════════════════════════════════════════════
+// Compute NASA image URL directly (fallback if API fails)
 function computeNASAUrl(now) {
   try {
     var y = now.getUTCFullYear();
@@ -584,7 +457,6 @@ function computeNASAUrl(now) {
     var dayOfYear = Math.floor((now.getTime() - jan1.getTime()) / 86400000) + 1;
     var hour = now.getUTCHours();
     var frame = (dayOfYear - 1) * 24 + hour + 1;
-    // Parent directory varies: a005000 for older, a005500 for newer
     var yearMap = [
       { year: 2024, parent: 'a005000', vis: 'a005048' },
       { year: 2025, parent: 'a005500', vis: 'a005550' },
@@ -597,61 +469,24 @@ function computeNASAUrl(now) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// MAIN
+// BUILD DATA ROWS
 // ═══════════════════════════════════════════════════════════
-async function init() {
-  var now = new Date();
+function buildDataRows(age, il, dist, vel, ang, pos, lib, temp, mr, ms, ev, nasa) {
+  var ageH = Math.floor(age);
+  var ageRem = (age - ageH) * 24;
+  var ageG = Math.floor(ageRem);
+  var ageX = Math.floor((ageRem - ageG) * 60);
 
-  // ── Step 1: Meeus calculations (always available, no network) ──
-  var age = moonAge(now), phase = phaseFromAge(age), il = illum(phase);
-  var dist = moonDist(now), pos = moonPos(now), lib = libration(now);
-  var ev = nextEvents(now, age), cal = monthlyCalendar(now);
-  var temp = surfTemp(il * 100);
-  var prog = (age / SYN) * 100;
-  var vel = Math.round(2 * Math.PI * dist / (SYN * 86400) * 100) / 100;
-  var ang = Math.round(2 * 1737.4 / dist * 180 / Math.PI * 60 * 100) / 100;
-
-  // ── Step 2: SVG moon IMMEDIATELY (zero dependencies, guaranteed) ──
-  var baseSize = 300;
-  window._moonScale = window._moonScale || 1;
-  var displaySize = Math.round(baseSize * window._moonScale);
-  renderSVG(phase, il, displaySize);
-
-  // ── Step 3: NASA API — async, non-blocking (image + telemetry) ──
-  var nasa = null;
-  try { nasa = await fetchNASADialAMoon(now); } catch (e) {}
-
-  // If NASA API gave us an image URL, load it over the SVG
-  if (nasa && nasa.imageUrl) {
-    try { await loadNASAImage(nasa.imageUrl, displaySize); } catch (e) {}
-  } else {
-    // Fallback: computed URL (corrected parent dirs)
-    var fallbackUrl = computeNASAUrl(now);
-    if (fallbackUrl) {
-      try { await loadNASAImage(fallbackUrl, displaySize); } catch (e) {}
-    }
-    // If even fallback fails — SVG stays, which is fine!
+  function fmtDate(ds) {
+    try { return new Date(ds + 'T00:00:00').toLocaleDateString('uk-UA', { month: 'short', day: 'numeric' }); }
+    catch (e) { return ds; }
   }
-
-  // ── Step 4: Moonrise/moonset ──
-  var mr = null, ms = null;
-  try {
-    var res = await fetch('https://api.sunrise-sunset.org/json?lat=50.45&lng=30.52&formatted=0&date=today');
-    var data = await res.json();
-    if (data.status === 'OK') { mr = data.results.moonrise; ms = data.results.moonset; }
-  } catch (e) {}
-
-  var fmtTime = function(iso) {
+  function fmtTime(iso) {
     if (!iso) return '\u2014';
     try { return new Date(iso).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Kiev' }); }
     catch (e) { return '\u2014'; }
-  };
-  var fmtDate = function(ds) {
-    try { return new Date(ds + 'T00:00:00').toLocaleDateString('uk-UA', { month: 'short', day: 'numeric' }); }
-    catch (e) { return ds; }
-  };
+  }
 
-  // ── Step 5: Data grid — prefer NASA telemetry, fallback to Meeus ──
   var useDist = (nasa && nasa.distance) ? Math.round(nasa.distance) : dist;
   var useDiam = (nasa && nasa.diameter) ? (nasa.diameter / 60).toFixed(1) : ang;
   var useVel = Math.round(2 * Math.PI * useDist / (SYN * 86400) * 100) / 100;
@@ -660,12 +495,7 @@ async function init() {
   var useLibLon = (nasa && nasa.libLon != null) ? Math.round(nasa.libLon * 10) / 10 : lib.lon;
   var useLibLat = (nasa && nasa.libLat != null) ? Math.round(nasa.libLat * 10) / 10 : lib.lat;
 
-  var ageH = Math.floor(age);
-  var ageRemainder = (age - ageH) * 24;
-  var ageG = Math.floor(ageRemainder);
-  var ageX = Math.floor((ageRemainder - ageG) * 60);
-
-  var rowsUK = [
+  return [
     ['\u0424\u0410\u0417\u0410', phaseName(age)],
     ['\u0412\u0406\u041A', ageH + '\u0434 ' + ageG + '\u0433 ' + ageX + '\u0445\u0432'],
     ['\u041E\u0421\u0412\u0406\u0422\u041B\u0415\u041D\u0406\u0421\u0422\u042C', (Math.round(il * 10000) / 100) + '%'],
@@ -675,156 +505,175 @@ async function init() {
     ['\u041F\u0420\u042F\u041C\u0415 \u0421\u0425\u0418\u0414\u0416\u0415\u041D\u041D\u042F', useRA],
     ['\u0421\u0425\u0418\u041B\u0415\u041D\u041D\u042F', useDec],
     ['\u041B\u0406\u0411\u0420\u0410\u0426\u0406\u042F', useLibLon + '\u00B0 / ' + useLibLat + '\u00B0'],
-    ['\u0422\u0415\u041C\u041F. \u0414\u0415\u041D\u041D\u041E\u0407', temp.day + '\u00B0C'],
-    ['\u0422\u0415\u041C\u041F. \u041D\u0406\u0427\u041D\u041E\u0407', temp.night + '\u00B0C'],
+    ['\u0422\u0415\u041C\u041F. \u0414\u0415\u041D\u041D\u041E\u0447\u0406', temp.day + '\u00B0C'],
+    ['\u0422\u0415\u041C\u041F. \u041D\u0406\u0427\u041D\u041E\u0447\u0406', temp.night + '\u00B0C'],
     ['\u041C\u0406\u0421\u042F\u0426\u0415\u0421\u0425\u0406\u0414', fmtTime(mr)],
     ['\u041C\u0406\u0421\u042F\u0426\u0415\u0417\u0410\u0425\u0406\u0414', fmtTime(ms)],
     ['\u041D\u0410\u0421\u0422\u0423\u041F\u041D\u0418\u0419 \u041F\u041E\u0412\u041D\u0418\u0419', fmtDate(ev.fm)],
     ['\u041D\u0410\u0421\u0422\u0423\u041F\u041D\u0418\u0419 \u041D\u041E\u0412\u0418\u0419', fmtDate(ev.nm)],
     ['\u0421\u0418\u041D\u041E\u0414. \u041F\u0415\u0420\u0406\u041E\u0414', SYN.toFixed(2) + ' \u0434\u043D'],
-    ['\u0426\u0418\u041A\u041B', prog.toFixed(1) + '%']
+    ['\u0426\u0418\u041A\u041B', ((age / SYN) * 100).toFixed(1) + '%']
   ];
+}
 
-  // Phase label
-  document.getElementById('phaseName').textContent = phaseName(age);
-  document.getElementById('illumLabel').textContent = '\u041E\u0441\u0432\u0456\u0442\u043B\u0435\u043D\u0456\u0441\u0442\u044C ' + (Math.round(il * 10000) / 100) + '%';
-  document.getElementById('progressFill').style.width = prog.toFixed(1) + '%';
-
-  // Data grid
-  document.getElementById('dataGrid').innerHTML = rowsUK.map(function(r) {
+function renderDataGrid(rows) {
+  document.getElementById('dataGrid').innerHTML = rows.map(function(r) {
     return '<div class="data-item"><span class="label">' + r[0] + '</span><span class="value">' + r[1] + '</span></div>';
   }).join('');
+}
 
-  // Calendar
-  var today = now.getDate();
+function renderCalendar(cal, todayDate) {
   document.getElementById('calendarGrid').innerHTML = cal.map(function(d) {
     var dn = parseInt(d.date.split('-')[2]);
-    var isT = dn === today;
+    var isT = dn === todayDate;
     return '<div class="cal-day' + (isT ? ' today' : '') + '">' +
       '<span class="day-num' + (isT ? ' is-today' : '') + '">' + dn + '</span>' +
       miniMoonSVG(d.phase, d.illum) +
       '<span class="day-pct">' + (d.illum > 0 ? Math.round(d.illum * 100) : '0') + '</span>' +
     '</div>';
   }).join('');
+}
 
-  // ── Step 6: Zoom controls ──
-  var zoomInBtn = document.getElementById('zoomIn');
-  var zoomOutBtn = document.getElementById('zoomOut');
-  var zoomLevelEl = document.getElementById('zoomLevel');
-  zoomLevelEl.textContent = window._moonScale.toFixed(1) + '\u00D7';
+function updatePhaseLabel(age, il) {
+  var prog = (age / SYN) * 100;
+  document.getElementById('phaseName').textContent = phaseName(age);
+  document.getElementById('illumLabel').textContent = '\u041E\u0441\u0432\u0456\u0442\u043B\u0435\u043D\u0456\u0441\u0442\u044C ' + (Math.round(il * 10000) / 100) + '%';
+  document.getElementById('progressFill').style.width = prog.toFixed(1) + '%';
+}
 
-  zoomInBtn.onclick = function() {
-    if (window._moonScale < 3) {
-      window._moonScale = Math.round((window._moonScale + 0.2) * 10) / 10;
-      refreshMoonDisplay(phase, il, nasa);
-    }
-  };
-  zoomOutBtn.onclick = function() {
-    if (window._moonScale > 0.4) {
-      window._moonScale = Math.round((window._moonScale - 0.2) * 10) / 10;
-      refreshMoonDisplay(phase, il, nasa);
-    }
-  };
+// ═══════════════════════════════════════════════════════════
+// MAIN INIT — shows content IMMEDIATELY, NASA in background
+// ═══════════════════════════════════════════════════════════
+async function init() {
+  var now = new Date();
 
-  // Store for refresh
-  window._currentPhase = phase;
-  window._currentIllum = il;
-  window._currentNasa = nasa;
+  // Step 1: Meeus calculations (instant, no network needed)
+  var age = moonAge(now), phase = phaseFromAge(age), il = illum(phase);
+  var dist = moonDist(now), pos = moonPos(now), lib = libration(now);
+  var ev = nextEvents(now, age), cal = monthlyCalendar(now);
+  var temp = surfTemp(il * 100);
+  var vel = Math.round(2 * Math.PI * dist / (SYN * 86400) * 100) / 100;
+  var ang = Math.round(2 * 1737.4 / dist * 180 / Math.PI * 60 * 100) / 100;
 
-  // Show page
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
+  // Step 2: SVG moon immediately (guaranteed)
+  var baseSize = 300;
+  window._moonScale = window._moonScale || 1;
+  var displaySize = Math.round(baseSize * window._moonScale);
+  renderSVG(phase, il, displaySize);
+
+  // Step 3: Show ALL data immediately with Meeus values
+  var rows = buildDataRows(age, il, dist, vel, ang, pos, lib, temp, null, null, ev, null);
+  updatePhaseLabel(age, il);
+  renderDataGrid(rows);
+  renderCalendar(cal, now.getDate());
+
+  // Step 4: Show page immediately
   createStars();
   updateClock();
   setInterval(updateClock, 1000);
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  // Zoom controls
+  document.getElementById('zoomLevel').textContent = window._moonScale.toFixed(1) + '\u00D7';
+  document.getElementById('zoomIn').onclick = function() {
+    if (window._moonScale < 3) {
+      window._moonScale = Math.round((window._moonScale + 0.2) * 10) / 10;
+      var sz = Math.round(300 * window._moonScale);
+      document.getElementById('zoomLevel').textContent = window._moonScale.toFixed(1) + '\u00D7';
+      renderSVG(window._currentPhase || phase, window._currentIllum || il, sz);
+    }
+  };
+  document.getElementById('zoomOut').onclick = function() {
+    if (window._moonScale > 0.4) {
+      window._moonScale = Math.round((window._moonScale - 0.2) * 10) / 10;
+      var sz = Math.round(300 * window._moonScale);
+      document.getElementById('zoomLevel').textContent = window._moonScale.toFixed(1) + '\u00D7';
+      renderSVG(window._currentPhase || phase, window._currentIllum || il, sz);
+    }
+  };
+
+  window._currentPhase = phase;
+  window._currentIllum = il;
+  window._currentNasa = null;
+
   if (!window._refreshTimer) {
     window._refreshTimer = setInterval(function() { refreshData(); }, 60000);
   }
-}
 
-// Refresh moon display at current zoom
-async function refreshMoonDisplay(phase, il, nasa) {
-  var baseSize = 300;
-  var displaySize = Math.round(baseSize * window._moonScale);
-  document.getElementById('zoomLevel').textContent = window._moonScale.toFixed(1) + '\u00D7';
-  renderSVG(phase, il, displaySize);
-  if (nasa && nasa.imageUrl) {
-    try { await loadNASAImage(nasa.imageUrl, displaySize); } catch (e) {}
+  // Step 5: Load NASA photo IMMEDIATELY (direct URL, no CORS needed)
+  var nasaImageUrl = computeNASAUrl(now);
+  if (nasaImageUrl) {
+    try { await loadNASAImage(nasaImageUrl, displaySize); } catch (e) {}
+  }
+
+  // Step 6: Background tasks (non-blocking, page already shows NASA photo or SVG)
+  var nasa = null;
+  var mr = null, ms = null;
+
+  // NASA API for telemetry (distance, RA/DEC, libration from NASA)
+  try { nasa = await fetchNASADialAMoon(now); } catch (e) {}
+
+  // Moonrise/moonset
+  try {
+    var res = await fetch('https://api.sunrise-sunset.org/json?lat=50.45&lng=30.52&formatted=0&date=today');
+    var data = await res.json();
+    if (data.status === 'OK') { mr = data.results.moonrise; ms = data.results.moonset; }
+  } catch (e) {}
+
+  // Step 7: Update data grid with NASA telemetry + moonrise/moonset if available
+  if (nasa || mr || ms) {
+    var updatedRows = buildDataRows(age, il, dist, vel, ang, pos, lib, temp, mr, ms, ev, nasa);
+    renderDataGrid(updatedRows);
+    if (nasa) window._currentNasa = nasa;
   }
 }
 
-// Periodic data refresh (no star re-creation, no layout reset)
+// ═══════════════════════════════════════════════════════════
+// PERIODIC REFRESH (every 60s, no layout reset)
+// ═══════════════════════════════════════════════════════════
 async function refreshData() {
   var now = new Date();
   var age = moonAge(now), phase = phaseFromAge(age), il = illum(phase);
   var dist = moonDist(now), pos = moonPos(now), lib = libration(now);
   var ev = nextEvents(now, age), cal = monthlyCalendar(now);
   var temp = surfTemp(il * 100);
-  var prog = (age / SYN) * 100;
   var vel = Math.round(2 * Math.PI * dist / (SYN * 86400) * 100) / 100;
   var ang = Math.round(2 * 1737.4 / dist * 180 / Math.PI * 60 * 100) / 100;
 
-  // Try NASA image update
-  var nasa = null;
-  try { nasa = await fetchNASADialAMoon(now); } catch (e) {}
-  if (nasa && nasa.imageUrl) {
-    try { await loadNASAImage(nasa.imageUrl, Math.round(300 * window._moonScale)); } catch (e) {}
+  // Update SVG
+  renderSVG(phase, il, Math.round(300 * window._moonScale));
+  updatePhaseLabel(age, il);
+
+  // Show Meeus data immediately
+  var rows = buildDataRows(age, il, dist, vel, ang, pos, lib, temp, null, null, ev, null);
+  renderDataGrid(rows);
+  renderCalendar(cal, now.getDate());
+
+  // Load NASA photo directly (fast, no CORS)
+  var directUrl = computeNASAUrl(now);
+  if (directUrl) {
+    try { await loadNASAImage(directUrl, Math.round(300 * window._moonScale)); } catch (e) {}
   }
 
-  // Update data grid
-  var nasaDist = (nasa && nasa.distance) ? Math.round(nasa.distance) : dist;
-  var nasaDiam = (nasa && nasa.diameter) ? (nasa.diameter / 60).toFixed(1) : ang;
-  var nasaVel = Math.round(2 * Math.PI * nasaDist / (SYN * 86400) * 100) / 100;
-  var useRA = (nasa && nasa.ra) ? nasa.ra : pos.ra;
-  var useDec = (nasa && nasa.dec) ? nasa.dec : pos.dec;
-  var useLibLon = (nasa && nasa.libLon != null) ? Math.round(nasa.libLon * 10) / 10 : lib.lon;
-  var useLibLat = (nasa && nasa.libLat != null) ? Math.round(nasa.libLat * 10) / 10 : lib.lat;
-  var ageH = Math.floor(age), ageRemainder = (age - ageH) * 24, ageG = Math.floor(ageRemainder), ageX = Math.floor((ageRemainder - ageG) * 60);
+  // NASA API for telemetry in background
+  var nasa = null;
+  try { nasa = await fetchNASADialAMoon(now); } catch (e) {}
 
-  document.getElementById('phaseName').textContent = phaseName(age);
-  document.getElementById('illumLabel').textContent = '\u041E\u0441\u0432\u0456\u0442\u043B\u0435\u043D\u0456\u0441\u0442\u044C ' + (Math.round(il * 10000) / 100) + '%';
-  document.getElementById('progressFill').style.width = prog.toFixed(1) + '%';
-
-  var rowsUK = [
-    ['\u0424\u0410\u0417\u0410', phaseName(age)],
-    ['\u0412\u0406\u041A', ageH + '\u0434 ' + ageG + '\u0433 ' + ageX + '\u0445\u0432'],
-    ['\u041E\u0421\u0412\u0406\u0422\u041B\u0415\u041D\u0406\u0421\u0422\u042C', (Math.round(il * 10000) / 100) + '%'],
-    ['\u0412\u0406\u0414\u0421\u0422\u0410\u041D\u042C', nasaDist.toLocaleString() + ' \u043A\u043C'],
-    ['\u0428\u0412\u0418\u0414\u041A\u0406\u0421\u0422\u042C', nasaVel + ' \u043A\u043C/\u0441'],
-    ['\u041A\u0423\u0422\u041E\u0412\u0418\u0419 \u0420\u041E\u0417\u041C\u0406\u0420', nasaDiam + "'"],
-    ['\u041F\u0420\u042F\u041C\u0415 \u0421\u0425\u0418\u0414\u0416\u0415\u041D\u041D\u042F', useRA],
-    ['\u0421\u0425\u0418\u041B\u0415\u041D\u041D\u042F', useDec],
-    ['\u041B\u0406\u0411\u0420\u0410\u0426\u0406\u042F', useLibLon + '\u00B0 / ' + useLibLat + '\u00B0'],
-    ['\u0422\u0415\u041C\u041F. \u0414\u0415\u041D\u041D\u041E\u0407', temp.day + '\u00B0C'],
-    ['\u0422\u0415\u041C\u041F. \u041D\u0406\u0427\u041D\u041E\u0407', temp.night + '\u00B0C'],
-    ['\u041C\u0406\u0421\u042F\u0426\u0415\u0421\u0425\u0406\u0414', '\u2014'],
-    ['\u041C\u0406\u0421\u042F\u0426\u0415\u0417\u0410\u0425\u0406\u0414', '\u2014'],
-    ['\u041D\u0410\u0421\u0422\u0423\u041F\u041D\u0418\u0419 \u041F\u041E\u0412\u041D\u0418\u0419', new Date(ev.fm + 'T00:00:00').toLocaleDateString('uk-UA', { month: 'short', day: 'numeric' })],
-    ['\u041D\u0410\u0421\u0422\u0423\u041F\u041D\u0418\u0419 \u041D\u041E\u0412\u0418\u0419', new Date(ev.nm + 'T00:00:00').toLocaleDateString('uk-UA', { month: 'short', day: 'numeric' })],
-    ['\u0421\u0418\u041D\u041E\u0414. \u041F\u0415\u0420\u0406\u041E\u0414', SYN.toFixed(2) + ' \u0434\u043D'],
-    ['\u0426\u0418\u041A\u041B', prog.toFixed(1) + '%']
-  ];
-  document.getElementById('dataGrid').innerHTML = rowsUK.map(function(r) {
-    return '<div class="data-item"><span class="label">' + r[0] + '</span><span class="value">' + r[1] + '</span></div>';
-  }).join('');
-
-  var today = now.getDate();
-  document.getElementById('calendarGrid').innerHTML = cal.map(function(d) {
-    var dn = parseInt(d.date.split('-')[2]);
-    var isT = dn === today;
-    return '<div class="cal-day' + (isT ? ' today' : '') + '">' +
-      '<span class="day-num' + (isT ? ' is-today' : '') + '">' + dn + '</span>' +
-      miniMoonSVG(d.phase, d.illum) +
-      '<span class="day-pct">' + (d.illum > 0 ? Math.round(d.illum * 100) : '0') + '</span>' +
-    '</div>';
-  }).join('');
+  // Update with NASA data if available
+  if (nasa) {
+    var updatedRows = buildDataRows(age, il, dist, vel, ang, pos, lib, temp, null, null, ev, nasa);
+    renderDataGrid(updatedRows);
+    window._currentNasa = nasa;
+  }
 
   window._currentPhase = phase;
   window._currentIllum = il;
-  window._currentNasa = nasa;
 }
 
+// ═══════════════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════════════
 init();
 </script>
-
 </body></html>
